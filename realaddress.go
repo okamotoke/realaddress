@@ -7,6 +7,7 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 )
 
 const (
-	addressFile    = "data/KEN_ALL_ROME.CSV"
+	addressFile    = "../realaddress/data/KEN_ALL_ROME.CSV"
 	totalLineCount = 124523
 )
 
@@ -59,6 +60,7 @@ func getRandomAddress(filePath string, lineCount int) (Address, error) {
 	var retryCount int
 	for true {
 		randomLineNum := rand.Intn(lineCount) + 1
+
 		line, err := readLine(filePath, randomLineNum)
 		if err != nil {
 			return Address{}, err
@@ -98,7 +100,12 @@ func skipAddress(town string) bool {
 }
 
 func countLine(filePath string) (int, error) {
-	f, err := os.Open(filePath)
+	p, err := filepath.Abs(filePath)
+	if err != nil {
+		return 0, err
+	}
+
+	f, err := os.OpenFile(p, os.O_RDONLY, os.ModeDir)
 	if err != nil {
 		return 0, err
 	}
@@ -122,7 +129,12 @@ func countLine(filePath string) (int, error) {
 }
 
 func readLine(filePath string, lineNumber int) (string, error) {
-	f, err := os.Open(filePath)
+	p, err := filepath.Abs(filePath)
+	if err != nil {
+		return "", err
+	}
+
+	f, err := os.OpenFile(p, os.O_RDONLY, os.ModeDir)
 	if err != nil {
 		return "", err
 	}
