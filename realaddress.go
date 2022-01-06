@@ -17,9 +17,9 @@ const (
 	totalLineCount = 124523
 )
 
-// exclude towns if contains following words
-// because it might not address
 var (
+	// exclude towns if contains following words
+	// because it might not be address
 	excludeTown = []string{
 		"以下に掲載がない場合",
 		"（",
