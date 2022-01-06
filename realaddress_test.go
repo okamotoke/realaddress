@@ -6,7 +6,7 @@ import (
 
 func Test_getRandomAddress(t *testing.T) {
 	var (
-		testAddressFile = "../realaddress/data/test1.CSV"
+		testAddressFile = "data/test1.CSV"
 		lienCount       = 3
 	)
 

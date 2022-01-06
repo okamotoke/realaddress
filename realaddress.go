@@ -3,11 +3,9 @@ package realaddress
 import (
 	"bufio"
 	"bytes"
+	"embed"
 	"fmt"
-	"io"
 	"math/rand"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"golang.org/x/text/encoding/japanese"
@@ -15,16 +13,20 @@ import (
 )
 
 const (
-	addressFile    = "../realaddress/data/KEN_ALL_ROME.CSV"
+	addressFile    = "data/KEN_ALL_ROME.CSV"
 	totalLineCount = 124523
 )
 
 // exclude towns if contains following words
 // because it might not address
-var excludeTown = []string{
-	"以下に掲載がない場合",
-	"（",
-}
+var (
+	excludeTown = []string{
+		"以下に掲載がない場合",
+		"（",
+	}
+	//go:embed data/KEN_ALL_ROME.CSV data/test1.CSV
+	addresses embed.FS
+)
 
 type Address struct {
 	postalCode string
@@ -96,50 +98,15 @@ func skipAddress(town string) bool {
 	return false
 }
 
-func countLine(filePath string) (int, error) {
-	p, err := filepath.Abs(filePath)
-	if err != nil {
-		return 0, err
-	}
-
-	f, err := os.OpenFile(p, os.O_RDONLY, os.ModeDir)
-	if err != nil {
-		return 0, err
-	}
-	defer f.Close()
-
-	var (
-		count int
-		buf   = make([]byte, bufio.MaxScanTokenSize)
-	)
-
-	for {
-		c, err := f.Read(buf)
-		if err != nil && err != io.EOF {
-			return 0, fmt.Errorf("failed to count line: %v", err)
-		}
-		if err == io.EOF {
-			return count, nil
-		}
-		count += bytes.Count(buf[:c], []byte{'\n'})
-	}
-}
-
 func readLine(filePath string, lineNumber int) (string, error) {
-	p, err := filepath.Abs(filePath)
+	f, err := addresses.ReadFile(filePath)
 	if err != nil {
 		return "", err
 	}
-
-	f, err := os.OpenFile(p, os.O_RDONLY, os.ModeDir)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
 
 	var (
 		c       int
-		s       = transform.NewReader(f, japanese.ShiftJIS.NewDecoder())
+		s       = transform.NewReader(bytes.NewReader(f), japanese.ShiftJIS.NewDecoder())
 		scanner = bufio.NewScanner(s)
 	)
 
