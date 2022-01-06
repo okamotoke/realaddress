@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"golang.org/x/text/encoding/japanese"
 	"golang.org/x/text/transform"
@@ -55,8 +54,6 @@ func GetRandomAddress() (Address, error) {
 }
 
 func getRandomAddress(filePath string, lineCount int) (Address, error) {
-	rand.Seed(time.Now().UnixNano())
-
 	var retryCount int
 	for true {
 		randomLineNum := rand.Intn(lineCount) + 1
